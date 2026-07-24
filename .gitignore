@@ -47,8 +47,6 @@ next-env.d.ts
 # Dependencies
 node_modules
 
-# Local Environment Variables
-.env
 
 
 # Debug logs

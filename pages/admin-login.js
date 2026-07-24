@@ -16,42 +16,38 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      // 1️⃣ Fetch admin record
-      const { data: admin, error: fetchError } = await supabase
-        .from("admins")
-        .select("*")
-        .eq("email", email)
-        .maybeSingle();
+      // 1️⃣ Send credentials securely to your server-side API endpoint
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (fetchError) throw fetchError;
+      const data = await response.json();
 
-      if (!admin) {
-        setError("No admin found with this email.");
+      // 2️⃣ If the server responded with an error status (401, 400, 500), handle it safely
+      if (!response.ok) {
+        setError(data.error || "Invalid email or password.");
         setLoading(false);
         return;
       }
 
-      // 2️⃣ Check plain-text password (since bcrypt not used)
-      if (password !== admin.password) {
-        setError("Invalid password.");
-        setLoading(false);
-        return;
-      }
-
-      // 3️⃣ Store secure local session (24h)
+      // 3️⃣ Store local session state flags (Server automatically sets the secure cookie)
       const sessionData = {
         loggedIn: true,
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000, // expires in 24 hours
+        expiresAt: Date.now() + 2 * 60 * 60 * 1000, // Sync to match your 2-hour cookie lifecycle
       };
       localStorage.setItem("adminSession", JSON.stringify(sessionData));
 
-      console.log("✅ Admin logged in successfully:", admin.email);
+      console.log("✅ Secure server-side authentication complete for:", data.admin.email);
 
-      // 4️⃣ Redirect to admin dashboard
+      // 4️⃣ Redirect cleanly to the administrator operations hub
       router.push("/admin");
     } catch (err) {
-      console.error("Login error:", err);
-      setError("Something went wrong. Please try again.");
+      console.error("Login connection failure:", err);
+      setError("Unable to connect to the authentication server. Please try again.");
     } finally {
       setLoading(false);
     }

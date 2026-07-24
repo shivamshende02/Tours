@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     // Allow users/admin to upload image metadata (not actual file upload here)
     const { title, alt, image_url } = req.body;
     const { error } = await supabase.from("gallery").insert([
-      { title, alt, image_url, approved: false },
+      { title, alt, image_url, approved: true },
     ]);
 
     if (error) return res.status(400).json({ error: error.message });

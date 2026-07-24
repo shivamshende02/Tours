@@ -72,13 +72,13 @@ export default async function handler(req, res) {
 
           // upload to Supabase storage (bucket: gallery)
           const { error: uploadErr } = await supabase.storage
-            .from("gallery")
+            .from("gallery-images")
             .upload(fileName, buffer, { cacheControl: "3600", upsert: false });
 
           if (uploadErr) throw uploadErr;
 
           // public URL
-          const { data: publicUrlData } = supabase.storage.from("gallery").getPublicUrl(fileName);
+          const { data: publicUrlData } = supabase.storage.from("gallery-images").getPublicUrl(fileName);
           const publicUrl = publicUrlData?.publicUrl || publicUrlData?.public_url;
 
           // insert metadata into DB (approved: false by default)
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
         try {
           const pathSegments = image_url.split("/");
           const fileName = pathSegments.slice(-1)[0];
-          const { error: removeErr } = await supabase.storage.from("gallery").remove([fileName]);
+          const { error: removeErr } = await supabase.storage.from("gallery-images").remove([fileName]);
           if (removeErr) console.warn("Storage remove error:", removeErr.message || removeErr);
         } catch (err) {
           console.warn("Error removing from storage:", err);

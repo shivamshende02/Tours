@@ -22,31 +22,36 @@ const sentenceVariants = {
   },
 }
 
+
 // ✨ Animated heading component
 function HeroHeading() {
   const controls = useAnimation()
 
   useEffect(() => {
-  let isMounted = false
-  const timer = setTimeout(() => {
-    isMounted = true
-    startLoop()
-  }, 0)
+    let isMounted = true
 
-  async function startLoop() {
-    while (isMounted) {
-      await controls.start("visible") // fade in
-      await new Promise((r) => setTimeout(r, 2500)) // pause
-      await controls.start("hidden") // fade out
+    async function startLoop() {
+      // 🌟 Safely checks isMounted before EVERY animation call
+      while (isMounted) {
+        if (!isMounted) break
+        await controls.start("visible")
+
+        if (!isMounted) break
+        await new Promise((r) => setTimeout(r, 2500))
+
+        if (!isMounted) break
+        await controls.start("hidden")
+      }
     }
-  }
 
-  return () => {
-    isMounted = false
-    clearTimeout(timer)
-  }
-}, [controls])
+    startLoop()
 
+    // 🌟 Cleanup: stops controls & breaks loop when unmounted/navigated away
+    return () => {
+      isMounted = false
+      controls.stop()
+    }
+  }, [controls])
 
   return (
     <h1 className="font-heading font-bold text-4xl md:text-6xl lg:text-7xl text-white mb-6 flex flex-wrap justify-center leading-tight">
@@ -54,7 +59,7 @@ function HeroHeading() {
         variants={sentenceVariants}
         initial="hidden"
         animate={controls}
-        className="flex  justify-center"
+        className="flex justify-center"
       >
         {HERO_TEXT.split("").map((char, i) => (
           <motion.span key={i} variants={letterVariants}>
