@@ -102,16 +102,16 @@ export default function BookingPage() {
         if (!mounted) return;
         setTours(list);
         const slug = Array.isArray(slugFromQuery) ? slugFromQuery[0] : slugFromQuery;
-if (slug) {
-  const found = list.find((t) => t.slug === slug);
-  if (found) {
-    setSelectedTour(found);
-  } else {
-    console.warn("Slug not found in tours list:", slug);
-    setSelectedTour(null); // avoid TypeError
-  }
-}
-        console.log("Booking with slug:", selectedTour.slug);
+        if (slug) {
+          const found = list.find((t) => t.slug === slug);
+          if (found) {
+            setSelectedTour(found);
+          } else {
+
+            setSelectedTour(null); // avoid TypeError
+          }
+        }
+
       } catch (err) {
         console.error(err);
         if (mounted) setError("Unable to load tours. Please try again later.");
@@ -414,7 +414,7 @@ if (slug) {
                       <SelectItem key={t.id} value={t.slug}>
                         {t.title} — {t.price_per_person ?? t.price ?? "N/A"} {t.price_currency || ""}
                       </SelectItem>
-                      
+
                     ))
                   )}
                 </SelectContent>
@@ -583,6 +583,6 @@ function pricePerSeatDisplay(tour) {
   const p = tour.price_per_person ?? tour.price ?? null;
   if (p == null) return "N/A";
   return `${Number(p).toLocaleString()} ${tour.price_currency || "INR"}`;
-  
+
 
 }
