@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       // list enquiries (most recent first)
       const { data, error } = await supabaseServer
-        .from("inquiries") // OR 'enquiries' depending on your schema
+        .from("enquiries")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -80,7 +80,7 @@ export default async function handler(req, res) {
       updates.replied_at = new Date().toISOString();
 
       const { data: updated, error: updateErr } = await supabaseServer
-        .from("inquiries")
+        .from("enquiries")
         .update(updates)
         .eq("id", id)
         .select()

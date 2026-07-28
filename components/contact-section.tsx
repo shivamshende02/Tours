@@ -34,29 +34,56 @@ export function ContactSection() {
   const [isSubmitted, setIsSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    const firstName = (document.getElementById("firstName") as HTMLInputElement)?.value || "";
+    const lastName = (document.getElementById("lastName") as HTMLInputElement)?.value || "";
+    const email = (document.getElementById("email") as HTMLInputElement)?.value || "";
+    const subject = (document.getElementById("subject") as HTMLInputElement)?.value || "";
+    const message = (document.getElementById("message") as HTMLTextAreaElement)?.value || "";
+
+    const honeypot = (document.getElementById("website_hp") as HTMLInputElement)?.value;
 
     const res = await fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name:
-          (document.getElementById("firstName") as HTMLInputElement)?.value +
-          " " +
-          (document.getElementById("lastName") as HTMLInputElement)?.value,
-        email: (document.getElementById("email") as HTMLInputElement)?.value,
-        message: (document.getElementById("message") as HTMLTextAreaElement)
-          ?.value,
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        subject,
+        message,
+        honeypot, // 👈 Pass honeypot value
       }),
-    })
+    });
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${firstName} ${lastName}`.trim(),
+          email,
+          subject,
+          message,
+          honeypot,
+        }),
+      });
 
-    const data = await res.json()
-    console.log("API response:", data)
+      const data = await res.json();
 
-    setIsSubmitting(false)
-    setIsSubmitted(res.ok)
-  }
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to submit enquiry.");
+      }
+
+      setIsSubmitted(true);
+    } catch (err: any) {
+      console.error("Submission error:", err.message);
+      alert("Error sending message: " + err.message);
+      setIsSubmitted(false);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
 
 
@@ -78,7 +105,7 @@ export function ContactSection() {
               <div className="w-125 h-16  flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-sm"><Logo /></span>
               </div>
-              
+
             </div>
 
             <p className="text-muted-foreground leading-relaxed text-lg">
@@ -172,16 +199,29 @@ export function ContactSection() {
                       <Input
                         id="firstName"
                         type="text"
+                        data-gramm="false"
+                        data-enable-grammarly="false"
                         placeholder="Enter your first name"
                         required
                         className="focus:ring-primary"
                       />
                     </div>
+                    {/* Hidden Honeypot Field for Bots */}
+                    <input
+                      type="text"
+                      id="website_hp"
+                      name="website_hp"
+                      className="hidden"
+                      tabIndex={-1}
+                      autoComplete="off"
+                    />
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
                       <Input
                         id="lastName"
                         type="text"
+                        data-gramm="false"
+                        data-enable-grammarly="false"
                         placeholder="Enter your last name"
                         required
                         className="focus:ring-primary"
@@ -194,6 +234,8 @@ export function ContactSection() {
                     <Input
                       id="email"
                       type="email"
+                      data-gramm="false"
+                      data-enable-grammarly="false"
                       placeholder="Enter your email address"
                       required
                       className="focus:ring-primary"
@@ -205,6 +247,9 @@ export function ContactSection() {
                     <Input
                       id="subject"
                       type="text"
+                      data-gramm="false"
+                      data-enable-grammarly="false"
+
                       placeholder="What's this about?"
                       required
                       className="focus:ring-primary"
@@ -215,6 +260,8 @@ export function ContactSection() {
                     <Label htmlFor="message">Message</Label>
                     <Textarea
                       id="message"
+                      data-gramm="false"
+                      data-enable-grammarly="false"
                       placeholder="Tell us about your dream destination or any questions you have..."
                       rows={5}
                       required
