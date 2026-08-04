@@ -182,6 +182,8 @@ export default async function handler(req, res) {
   return res.status(405).json({ error: 'Method not allowed. Use GET or POST.' });
 }
 
+async function handlePOST(req, res) {
+
   // Basic auth guard: ensure this is only called from your admin site.
   // You might have your own admin HOC, token, or session; implement below if needed.
   // Example: if you use a simple header token:
