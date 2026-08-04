@@ -2,9 +2,9 @@
 import type { AppProps } from "next/app"
 import { Work_Sans, Open_Sans } from "next/font/google"
 import { Analytics } from "@vercel/analytics/react"
-import { ThemeProvider } from "D:\\Tours\\group-tours-frontend\\components\\theme-provider"
+import { ThemeProvider } from "@/components/theme-provider"
 import { Suspense } from "react"
-import "../styles/globals.css"
+import "@/styles/globals.css"
 
 // ✅ Load Google Fonts instead of Geist
 const workSans = Work_Sans({
